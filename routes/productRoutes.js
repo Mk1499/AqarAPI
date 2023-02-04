@@ -2,6 +2,7 @@ import express from 'express';
 import Product from '../models/product.js';
 import User from '../models/user.js';
 import jwt from 'jsonwebtoken';
+import adminRouter from '../middleware/admin.middleware.js';
 
 const productRouter = express.Router();
 
@@ -83,7 +84,7 @@ productRouter.post('/buy', async (req, res) => {
   }
 });
 
-productRouter.post('/free', async (req, res) => {
+productRouter.post('/free', adminRouter, async (req, res) => {
   const { productID } = req.body;
 
   Product.findOneAndUpdate(
@@ -103,6 +104,21 @@ productRouter.post('/free', async (req, res) => {
     })
     .catch((err) => {
       res.status(400).json({ err });
+    });
+});
+
+productRouter.get('/:id', async (req, res) => {
+  const id = req.params.id;
+  let product = await Product.findById(id)
+    .then((data) => {
+      res.status(200).json({
+        data,
+      });
+    })
+    .catch((err) => {
+      res.status(400).json({
+        err,
+      });
     });
 });
 
